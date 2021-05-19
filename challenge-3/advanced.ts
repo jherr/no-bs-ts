@@ -1,42 +1,45 @@
-type Handlers<T> = {
-  [Prop in keyof T as `filter${Capitalize<string & Prop>}`]?: (
-    data: T[Prop]
-  ) => boolean;
+type Map<T> = (data: T) => T;
+type Filter<T> = (data: T) => boolean;
+type Handler<T> = {
+  [Prop in keyof T as `map${Capitalize<string & Prop>}`]?: Map<T[Prop]>;
 } &
   {
-    [Prop in keyof T as `map${Capitalize<string & Prop>}`]?: (
-      data: T[Prop]
-    ) => T[Prop];
+    [Prop in keyof T as `filter${Capitalize<string & Prop>}`]?: Filter<T[Prop]>;
   };
-type ProcessedEvent<T> = { eventName: keyof T; data: T[keyof T] };
+type ProcessedEvent<T> = {
+  eventName: keyof T;
+  data: T[keyof T];
+};
 
 class EventProcessor<T extends {}> {
-  private handlers: Handlers<T>[] = [];
+  private handlers: Handler<T>[] = [];
   private processed: ProcessedEvent<T>[] = [];
 
   handleEvent<K extends keyof T>(eventName: K, data: T[K]): void {
     let allowEvent = true;
 
-    const capitalize = (s) => `${s.charAt(0).toUpperCase()}${s.slice(1)}`;
+    const capitalize = (s: string) =>
+      `${s.charAt(0).toUpperCase()}${s.slice(1)}`;
 
     for (const handler of this.handlers) {
-      const filter = handler[`filter${capitalize(eventName)}`];
-      if (filter && !filter(data)) {
+      const filterFunc = handler[
+        `filter${capitalize(eventName as string)}` as keyof Handler<T>
+      ] as unknown as ((value: T[K]) => boolean) | undefined;
+      if (filterFunc && !filterFunc(data)) {
         allowEvent = false;
         break;
       }
     }
-
     if (allowEvent) {
       let mappedData = { ...data };
-
       for (const handler of this.handlers) {
-        const map = handler[`map${capitalize(eventName)}`];
-        if (map) {
-          mappedData = map(mappedData);
+        const mapFunc = handler[
+          `map${capitalize(eventName as string)}` as keyof Handler<T>
+        ] as unknown as ((value: T[K]) => T[K]) | undefined;
+        if (mapFunc) {
+          mappedData = <T[K]>mapFunc(mappedData);
         }
       }
-
       this.processed.push({
         eventName,
         data: mappedData,
@@ -44,11 +47,11 @@ class EventProcessor<T extends {}> {
     }
   }
 
-  addHandler(handler: Handlers<T>) {
+  addHandler(handler: Handler<T>): void {
     this.handlers.push(handler);
   }
 
-  getProcessedEvents(): ProcessedEvent<T>[] {
+  getProcessedEvents() {
     return this.processed;
   }
 }
@@ -61,6 +64,7 @@ interface EventMap {
 class UserEventProcessor extends EventProcessor<EventMap> {}
 
 const uep = new UserEventProcessor();
+
 uep.addHandler({
   filterLogin: ({ user }) => Boolean(user),
   mapLogin: (data) => ({
@@ -70,7 +74,6 @@ uep.addHandler({
 });
 
 uep.handleEvent("login", {
-  user: null,
   name: "jack",
 });
 uep.handleEvent("login", {
@@ -82,3 +85,14 @@ uep.handleEvent("logout", {
 });
 
 console.log(uep.getProcessedEvents());
+
+/*
+Result:
+[
+  {
+    eventName: 'login',
+    data: { user: 'tom', name: 'tomas', hasSession: true }
+  },
+  { eventName: 'logout', data: { user: 'tom' } }
+]
+*/
