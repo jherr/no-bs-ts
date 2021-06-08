@@ -1,0 +1,12 @@
+{
+  "name": "ts-consumer",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^4.3.2"
+  },
+  "dependencies": {
+    "mylib": "1.0.0"
+  }
+}
