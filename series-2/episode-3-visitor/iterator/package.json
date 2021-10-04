@@ -1,0 +1,14 @@
+{
+  "name": "iterator",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node-fetch": "^2.0.0",
+    "ts-node": "^10.2.1",
+    "typescript": "^4.4.3"
+  },
+  "dependencies": {
+    "node-fetch": "2.0.0"
+  }
+}
