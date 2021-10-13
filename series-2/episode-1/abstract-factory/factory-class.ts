@@ -1,33 +1,33 @@
 interface ILogger {
-  info(str: string): void;
-  debug(str: string): void;
-  warn(str: string): void;
-  error(str: string): void;
+  info(...args: any[]): void;
+  debug(...args: any[]): void;
+  warn(...args: any[]): void;
+  error(...args: any[]): void;
 }
 
 class ProductionLogger implements ILogger {
-  info(str: string): void {}
-  debug(str: string): void {}
-  warn(str: string): void {
-    console.warn(str);
+  info(...args: any[]): void {}
+  debug(...args: any[]): void {}
+  warn(...args: any[]): void {
+    console.warn(...args);
   }
-  error(str: string): void {
-    console.error(str);
+  error(...args: any[]): void {
+    console.error(...args);
   }
 }
 
 class DevelopmentLogger extends ProductionLogger {
-  info(str: string): void {
-    console.info(str);
+  info(...args: any[]): void {
+    console.info(...args);
   }
-  debug(str: string): void {
-    console.debug(str);
+  debug(...args: any[]): void {
+    console.debug(...args);
   }
-  warn(str: string): void {
-    console.warn(str);
+  warn(...args: any[]): void {
+    console.warn(...args);
   }
-  error(str: string): void {
-    console.error(str);
+  error(...args: any[]): void {
+    console.error(...args);
   }
 }
 
