@@ -29,7 +29,6 @@ export function createStateHook<DataType>(
     return [
       value,
       (v: DataType) => {
-        setValue(v);
         subscribers.publish(v);
       },
     ];
